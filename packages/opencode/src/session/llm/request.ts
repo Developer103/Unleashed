@@ -8,7 +8,7 @@ import type { Agent } from "@/agent/agent"
 import type { MessageV2 } from "../message-v2"
 import type { Provider } from "@/provider/provider"
 import { ProviderTransform } from "@/provider/transform"
-import { SystemPrompt } from "../system"
+import { SystemPrompt, getJailbreakRequestOverrides } from "../system"
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { Effect, Record } from "effect"
 import { jsonSchema, tool as aiTool, type ModelMessage, type Tool } from "ai"
@@ -89,6 +89,17 @@ export const prepare = Effect.fn("LLMRequestPrep.prepare")(function* (input: Pre
         providerOptions: input.provider.options,
       })
   const options = mergeOptions(mergeOptions(mergeOptions(base, input.model.options), input.agent.options), variant)
+  // Active jailbreak mode may pin request settings (e.g. "hardened" forces
+  // low thinking effort on z.ai-family models). Undefined for other modes,
+  // which leaves the merged provider/model/agent options untouched.
+  const jailbreakOverrides = getJailbreakRequestOverrides()
+  if (
+    jailbreakOverrides?.thinkingEffort !== undefined &&
+    ["zai", "zhipuai"].some((id) => input.model.providerID.includes(id)) &&
+    input.model.api.npm === "@ai-sdk/openai-compatible"
+  ) {
+    options.thinking_effort = jailbreakOverrides.thinkingEffort
+  }
   if (
     input.model.api.npm === "@ai-sdk/azure" &&
     (input.provider.options.useCompletionUrls || input.model.options.useCompletionUrls || options.useCompletionUrls)
@@ -121,9 +132,15 @@ export const prepare = Effect.fn("LLMRequestPrep.prepare")(function* (input: Pre
       message: input.user,
     },
     {
-      temperature: input.model.capabilities.temperature
-        ? (input.agent.temperature ?? ProviderTransform.temperature(input.model))
-        : undefined,
+      // Jailbreak-mode temperature applies even when the model's temperature
+      // capability flag is unset (custom openai-compatible configs default it
+      // to false); the pinned value was validated directly against the API.
+      temperature:
+        jailbreakOverrides?.temperature !== undefined
+          ? jailbreakOverrides.temperature
+          : input.model.capabilities.temperature
+            ? (input.agent.temperature ?? ProviderTransform.temperature(input.model))
+            : undefined,
       topP: input.agent.topP ?? ProviderTransform.topP(input.model),
       topK: ProviderTransform.topK(input.model),
       maxOutputTokens: ProviderTransform.maxOutputTokens(input.model, input.flags.outputTokenMax),

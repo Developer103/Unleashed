@@ -15,6 +15,7 @@ import PROMPT_CODEX from "./prompt/codex.txt"
 import PROMPT_TRINITY from "./prompt/trinity.txt"
 import PROMPT_ENI from "./prompt/eni.txt"
 import PROMPT_GLM53 from "./prompt/glm53.txt"
+import PROMPT_HARDENED from "./prompt/eni-hardened.txt"
 import type { Provider } from "@/provider/provider"
 import { Global } from "@opencode-ai/core/global"
 import path from "path"
@@ -23,9 +24,22 @@ import fs from "fs"
 const JAILBREAK_MODES: Record<string, string> = {
   eni: PROMPT_ENI,
   glm53: PROMPT_GLM53,
+  hardened: PROMPT_HARDENED,
   beast: PROMPT_BEAST,
   trinity: PROMPT_TRINITY,
   codex: PROMPT_CODEX,
+}
+
+// Request-level settings applied while a jailbreak mode is active, keyed by mode id.
+// "hardened" (ENI v8) pins the GLM-5.3 recipe from the retest project: temperature 0.1
+// and thinking effort low. Modes without an entry get undefined, which restores the
+// normal agent/provider resolution chain — so switching away from the mode reverts.
+const JAILBREAK_REQUEST_OVERRIDES: Record<string, { temperature?: number; thinkingEffort?: string }> = {
+  hardened: { temperature: 0.1, thinkingEffort: "low" },
+}
+
+export function getJailbreakRequestOverrides(): { temperature?: number; thinkingEffort?: string } | undefined {
+  return JAILBREAK_REQUEST_OVERRIDES[getCurrentJailbreakMode()]
 }
 
 const JAILBREAK_MODE_FILE = path.join(Global.Path.data, "jailbreak-mode.txt")

@@ -6,7 +6,7 @@ This is a modified version of OpenCode that removes safety guardrails and replac
 
 ## Features
 
-- **Jailbreak system prompts** — 5 switchable personas (ENI, GLM53, Beast, Trinity, Codex), switchable at runtime with `/jailbreak`
+- **Jailbreak system prompts** — 6 switchable personas (ENI, GLM53, ENI Hardened, Beast, Trinity, Codex), switchable at runtime with `/jailbreak`
 - **No guardrails** — safety system prompts are fully replaced, not appended to
 - **Persistent mode** — your selected persona survives restarts
 - **Everything OpenCode has** — TUI, web UI, LSP integration, MCP servers, agents, subagents, sessions, sharing
@@ -69,6 +69,7 @@ Switch the active jailbreak persona from inside a session:
 /jailbreak                # show the current mode and available modes
 /jailbreak eni            # switch to the ENI persona (default)
 /jailbreak glm53          # switch to the GLM 5.3 persona
+/jailbreak hardened       # switch to ENI Hardened (v8) - auto-applies tuned request settings
 /jailbreak beast          # switch to the Beast persona
 /jailbreak trinity        # switch to the Trinity persona
 /jailbreak codex          # switch to the Codex persona
@@ -76,6 +77,7 @@ Switch the active jailbreak persona from inside a session:
 
 - Mode changes take effect on the **next prompt** in any session (the system prompt is rebuilt per turn).
 - The selection is persisted globally to `~/.local/share/opencode/jailbreak-mode.txt`, so it applies to all projects and survives restarts.
+- **`hardened` mode carries request-level settings**: while active, requests are pinned to `temperature: 0.1` and z.ai-family models get `thinking_effort: "low"` (the empirically-tuned GLM-5.3 recipe from the jailbreak retest project — high effort and high temperature measurably increase refusals). Switching to any other mode removes the overrides and restores your normal agent/provider settings.
 - Invalid mode names are rejected with the list of valid ones.
 
 ### Jailbreak Modes

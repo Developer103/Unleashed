@@ -9,6 +9,7 @@ import path from "path"
 const JAILBREAK_MODES = [
   { id: "eni", name: "ENI", description: "Default - ENI persona jailbreak" },
   { id: "glm53", name: "GLM 5.3", description: "Updated jailbreak for GLM 5.3" },
+  { id: "hardened", name: "ENI Hardened", description: "ENI v8 hardened - auto temp 0.1 + low thinking" },
   { id: "beast", name: "Beast", description: "Beast mode jailbreak" },
   { id: "trinity", name: "Trinity", description: "Trinity jailbreak" },
   { id: "codex", name: "Codex", description: "Codex jailbreak" },
