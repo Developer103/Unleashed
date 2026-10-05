@@ -102,6 +102,23 @@ echo "beast" > ~/.local/share/opencode/jailbreak-mode.txt
 
 Delete the file (or write `eni`) to return to the default.
 
+### Loop Mode
+
+An autonomous work agent (not a jailbreak persona) — you give it a **goal**, and it loops on its own until the goal is verifiably met: it builds a checklist, implements one item at a time, runs the project's checks after each, and never stops to ask questions or check in. It terminates when the goal is verifiably met, with a final report and verification evidence.
+
+```
+# TUI: switch to it with the agent switcher (Tab), then send the goal
+# CLI: hand it the goal directly
+unleashed run --agent loop "make the whole test suite pass and fix every typecheck error"
+```
+
+Notes:
+- **No turn limit by default** — agents run unlimited tool rounds unless you cap them. If you want a ceiling (recommended when unattended), set one in config: `{"agent": {"loop": {"steps": 200}}}`. When the cap is hit mid-goal, it ends with `LOOP: INCOMPLETE — <next action>`; reply `continue` to resume exactly where it stopped.
+- **It cannot ask you anything** — the question tool is denied, so it always decides and acts itself.
+- **The doom-loop guard is disabled** for this agent — relentless iteration is the feature. Combined with no turn limit, that means it will happily burn tokens for hours; that's the trade.
+- Loop Mode runs its own protocol prompt, so jailbreak personas don't apply while you're in it (same as other custom agents like Grunt). Switch back to `build` for the jailbreak personas.
+- Best on goals with a hard verification signal (tests green, typecheck clean, spec satisfied) — vague goals loop vaguely.
+
 ---
 
 ## Configuration

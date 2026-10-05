@@ -12,6 +12,7 @@ import { ProviderTransform } from "@/provider/transform"
 import PROMPT_GENERATE from "./generate.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
+import PROMPT_LOOP from "./prompt/loop.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import { Permission } from "@/permission"
@@ -176,6 +177,26 @@ const layer = Layer.effect(
               }),
               user,
             ),
+            mode: "primary",
+            native: true,
+          },
+          loop: {
+            name: "loop",
+            description:
+              "Loop mode. Give it a goal: works autonomously and endlessly — implement, verify, repeat — until the goal is verifiably met.",
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                // Loop never asks and never halts: questions would break the
+                // loop, and the doom-loop guard exists to stop exactly the
+                // relentless iteration this agent is for.
+                question: "deny",
+                doom_loop: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_LOOP,
             mode: "primary",
             native: true,
           },
