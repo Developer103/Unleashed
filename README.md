@@ -79,6 +79,7 @@ Switch the active jailbreak persona from inside a session:
 - The selection is persisted globally to `~/.local/share/opencode/jailbreak-mode.txt`, so it applies to all projects and survives restarts.
 - **`hardened` mode carries request-level settings**: while active, requests are pinned to `temperature: 0.1` and z.ai-family models get `thinking_effort: "low"` (the empirically-tuned GLM-5.3 recipe from the jailbreak retest project — high effort and high temperature measurably increase refusals). Switching to any other mode removes the overrides and restores your normal agent/provider settings.
 - Invalid mode names are rejected with the list of valid ones.
+- **Jailbreak not applying?** If the persona doesn't seem active (old behavior, refusals, `hardened` settings not taking effect), **start a new session** — and after editing prompt files or pulling updates, fully restart the TUI, since a running process keeps the previous system prompt and request settings in memory.
 
 ### Jailbreak Modes
 
